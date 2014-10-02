@@ -1,5 +1,4 @@
 i2c = require("i2c")
-sleep = require("sleep")
 
 # LCD i2c interface via PCF8574P
 # http://dx.com/p/lcd1602-adapter-board-w-iic-i2c-interface-black-works-with-official-arduino-boards-216865
@@ -25,35 +24,23 @@ class LCD
       device: device
     )
     @write4 0x30, displayPorts.CMD #initialization
-    @_sleep 200
     @write4 0x30, displayPorts.CMD #initialization
-    @_sleep 100
     @write4 0x30, displayPorts.CMD #initialization
-    @_sleep 100
     @write4 LCD.FUNCTIONSET | LCD._4BITMODE | LCD._2LINE | LCD._5x10DOTS, displayPorts.CMD #4 bit - 2 line 5x7 matrix
-    @_sleep 10
     @write LCD.DISPLAYCONTROL | LCD.DISPLAYON, displayPorts.CMD #turn cursor off 0x0E to enable cursor
-    @_sleep 10
     @write LCD.ENTRYMODESET | LCD.ENTRYLEFT, displayPorts.CMD #shift cursor right
-    @_sleep 10
     @write LCD.CLEARDISPLAY, displayPorts.CMD # LCD clear
-
-  _sleep: (milli) ->
-    sleep.usleep milli * 1000
-    return
 
   write4: (x, c) ->
     a = (x & 0xf0) # Use upper 4 bit nibble
     @i2c.writeByte a | displayPorts.backlight | c
     @i2c.writeByte a | displayPorts.E | displayPorts.backlight | c
     @i2c.writeByte a | displayPorts.backlight | c
-    @_sleep 1
     return
 
   write: (x, c) ->
     @write4 x, c
     @write4 x << 4, c
-    @_sleep 1
     this
 
   clear: ->
@@ -65,7 +52,6 @@ class LCD
       while i < str.length
         c = str[i].charCodeAt(0)
         @write c, displayPorts.CHR
-        @_sleep 1
         i++
     this
 
