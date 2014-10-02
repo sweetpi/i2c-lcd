@@ -1,4 +1,7 @@
-i2c = require("i2c")
+i2c = require 'i2c'
+Promise = require 'bluebird'
+assert = require 'assert'
+Promise.promisifyAll(i2c.prototype)
 
 # LCD i2c interface via PCF8574P
 # http://dx.com/p/lcd1602-adapter-board-w-iic-i2c-interface-black-works-with-official-arduino-boards-216865
@@ -23,37 +26,40 @@ class LCD
     @i2c = new i2c(address,
       device: device
     )
-    @write4 0x30, displayPorts.CMD #initialization
-    @write4 0x30, displayPorts.CMD #initialization
-    @write4 0x30, displayPorts.CMD #initialization
-    @write4 LCD.FUNCTIONSET | LCD._4BITMODE | LCD._2LINE | LCD._5x10DOTS, displayPorts.CMD #4 bit - 2 line 5x7 matrix
-    @write LCD.DISPLAYCONTROL | LCD.DISPLAYON, displayPorts.CMD #turn cursor off 0x0E to enable cursor
-    @write LCD.ENTRYMODESET | LCD.ENTRYLEFT, displayPorts.CMD #shift cursor right
-    @write LCD.CLEARDISPLAY, displayPorts.CMD # LCD clear
+
+  init: ->
+    Promise.resolve()
+      .then( => @write4(0x30, displayPorts.CMD) ) #initialization
+      .then( => @write4(0x30, displayPorts.CMD) ) #initialization
+      .then( => @write4(0x30, displayPorts.CMD) ) #initialization
+      #4 bit - 2 line 5x7 matrix
+      .then( =>  @write4(LCD.FUNCTIONSET|LCD._4BITMODE|LCD._2LINE|LCD._5x10DOTS, displayPorts.CMD) )
+      #turn cursor off 0x0E to enable cursor
+      .then( =>  @write(LCD.DISPLAYCONTROL|LCD.DISPLAYON, displayPorts.CMD) )
+      #shift cursor right
+      .then( =>  @write(LCD.ENTRYMODESET|LCD.ENTRYLEFT, displayPorts.CMD) )
+      # LCD clear
+      .then( =>  @write(LCD.CLEARDISPLAY, displayPorts.CMD) )
+      .delay(200)
 
   write4: (x, c) ->
     a = (x & 0xf0) # Use upper 4 bit nibble
-    @i2c.writeByte a | displayPorts.backlight | c
-    @i2c.writeByte a | displayPorts.E | displayPorts.backlight | c
-    @i2c.writeByte a | displayPorts.backlight | c
-    return
+    return Promise.resolve()
+      .then( => @i2c.writeByteAsync(a | displayPorts.backlight | c) )
+      .then( => @i2c.writeByteAsync(a | displayPorts.E | displayPorts.backlight | c) )
+      .then( => @i2c.writeByteAsync(a | displayPorts.backlight | c) )
 
   write: (x, c) ->
-    @write4 x, c
-    @write4 x << 4, c
-    this
+    return Promise.resolve()
+      .then( => @write4(x, c) )
+      .then( => @write4 x << 4, c )
 
-  clear: ->
-    @write LCD.CLEARDISPLAY, displayPorts.CMD
+  clear: -> @write(LCD.CLEARDISPLAY, displayPorts.CMD)
 
   print: (str) ->
-    if typeof str is "string"
-      i = 0
-      while i < str.length
-        c = str[i].charCodeAt(0)
-        @write c, displayPorts.CHR
-        i++
-    this
+    assert typeof str is "string"
+    charCodes = (char.charCodeAt(0) for char in str)
+    return Promise.each(charCodes, (charCode) => @write(charCode, displayPorts.CHR) )
 
 
   ###*
@@ -162,13 +168,13 @@ class LCD
   set special character 0..7, data is an array(8) of bytes, and then return to home addr
   ###
   createChar: (ch, data) ->
-    @write LCD.SETCGRAMADDR | ((ch & 7) << 3), displayPorts.CMD
-    i = 0
+    assert Array.isArray(data)
+    assert data.length is 8
+    @write(LCD.SETCGRAMADDR | ((ch & 7) << 3), displayPorts.CMD)
+      .then( => Promise.each(data, (d) => @write(d, displayPorts.CHR)) )
+      .then( => @write(LCD.SETDDRAMADDR, displayPorts.CMD) )
 
-    while i < 8
-      @write data[i], displayPorts.CHR
-      i++
-    @write LCD.SETDDRAMADDR, displayPorts.CMD
+
 
 # commands
 LCD.CLEARDISPLAY = 0x01

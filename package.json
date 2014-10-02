@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "i2c": "*",
+    "bluebird": "~2.3.4"
   },
   "keywords": [
     "PCF8574P",
