@@ -28,7 +28,7 @@ class LCD
     )
 
   init: ->
-    Promise.resolve()
+    return Promise.resolve()
       .then( => @write4(0x30, displayPorts.CMD) ) #initialization
       .then( => @write4(0x30, displayPorts.CMD) ) #initialization
       .then( => @write4(0x30, displayPorts.CMD) ) #initialization
@@ -45,9 +45,9 @@ class LCD
   write4: (x, c) ->
     a = (x & 0xf0) # Use upper 4 bit nibble
     return Promise.resolve()
-      .then( => @i2c.writeByteAsync(a | displayPorts.backlight | c) )
-      .then( => @i2c.writeByteAsync(a | displayPorts.E | displayPorts.backlight | c) )
-      .then( => @i2c.writeByteAsync(a | displayPorts.backlight | c) )
+      .then( => @i2c.writeByteAsync(a|displayPorts.backlight|c) )
+      .then( => @i2c.writeByteAsync(a|displayPorts.E|displayPorts.backlight|c) )
+      .then( => @i2c.writeByteAsync(a|displayPorts.backlight|c) )
 
   write: (x, c) ->
     return Promise.resolve()
@@ -61,108 +61,83 @@ class LCD
     charCodes = (char.charCodeAt(0) for char in str)
     return Promise.each(charCodes, (charCode) => @write(charCode, displayPorts.CHR) )
 
-
   ###*
   flashing block for the current cursor
   ###
   cursorFull: ->
-    @write LCD.DISPLAYCONTROL | LCD.DISPLAYON | LCD.CURSORON | LCD.BLINKON, displayPorts.CMD
-
+    return @write(LCD.DISPLAYCONTROL|LCD.DISPLAYON|LCD.CURSORON|LCD.BLINKON, displayPorts.CMD)
 
   ###*
   small line under the current cursor
   ###
   cursorUnder: ->
-    @write LCD.DISPLAYCONTROL | LCD.DISPLAYON | LCD.CURSORON | LCD.BLINKOFF, displayPorts.CMD
-
+    return @write(LCD.DISPLAYCONTROL|LCD.DISPLAYON|LCD.CURSORON|LCD.BLINKOFF, displayPorts.CMD)
 
   ###*
   set cursor pos, top left = 0,0
   ###
   setCursor: (x, y) ->
-    l = [
-      0x00
-      0x40
-      0x14
-      0x54
-    ]
-    @write LCD.SETDDRAMADDR | (l[y] + x), displayPorts.CMD
-
+    assert typeof x is "number"
+    assert typeof y is "number"
+    assert 0 <= y <= 3
+    l = [0x00, 0x40, 0x14, 0x54]
+    return @write(LCD.SETDDRAMADDR|(l[y] + x), displayPorts.CMD)
 
   ###*
   set cursor to 0,0
   ###
-  home: ->
-    l = [
-      0x00
-      0x40
-      0x14
-      0x54
-    ]
-    @write LCD.SETDDRAMADDR | 0x00, displayPorts.CMD
-
+  home: -> @setCursor(0, 0)
 
   ###*
   Turn underline cursor off
   ###
   blink_off: ->
-    @write LCD.DISPLAYCONTROL | LCD.DISPLAYON | LCD.CURSOROFF | LCD.BLINKOFF, displayPorts.CMD
-
+    return @write(LCD.DISPLAYCONTROL|LCD.DISPLAYON|LCD.CURSOROFF|LCD.BLINKOFF, displayPorts.CMD)
 
   ###*
   Turn underline cursor on
   ###
   blink_on: ->
-    @write LCD.DISPLAYCONTROL | LCD.DISPLAYON | LCD.CURSORON | LCD.BLINKOFF, displayPorts.CMD
-
+    return @write(LCD.DISPLAYCONTROL|LCD.DISPLAYON|LCD.CURSORON|LCD.BLINKOFF, displayPorts.CMD)
 
   ###*
   Turn block cursor off
   ###
   cursor_off: ->
-    @write LCD.DISPLAYCONTROL | LCD.DISPLAYON | LCD.CURSOROFF | LCD.BLINKON, displayPorts.CMD
-
+    return @write(LCD.DISPLAYCONTROL|LCD.DISPLAYON|LCD.CURSOROFF|LCD.BLINKON, displayPorts.CMD)
 
   ###*
   Turn block cursor on
   ###
   cursor_on: ->
-    @write LCD.DISPLAYCONTROL | LCD.DISPLAYON | LCD.CURSORON | LCD.BLINKON, displayPorts.CMD
-
+    return @write(LCD.DISPLAYCONTROL|LCD.DISPLAYON|LCD.CURSORON|LCD.BLINKON, displayPorts.CMD)
 
   ###*
   setBacklight
   ###
   setBacklight: (val) ->
-    if val > 0
-      displayPorts.backlight = 0x08
-    else
-      displayPorts.backlight = 0x00
-    @write LCD.DISPLAYCONTROL, displayPorts.CMD
-
+    displayPorts.backlight = (if val then 0x08 else 0x00)
+    return @write(LCD.DISPLAYCONTROL, displayPorts.CMD)
 
   ###*
   setContrast stub
   ###
   setContrast: (val) ->
-    @write LCD.DISPLAYCONTROL, displayPorts.CMD
-
+    return @write(LCD.DISPLAYCONTROL, displayPorts.CMD)
 
   ###*
   Turn display off
   ###
   off: ->
     displayPorts.backlight = 0x00
-    @write LCD.DISPLAYCONTROL | LCD.DISPLAYOFF, displayPorts.CMD
-
+    return @write(LCD.DISPLAYCONTROL|LCD.DISPLAYOFF, displayPorts.CMD)
 
   ###*
   Turn display on
   ###
   on: ->
     displayPorts.backlight = 0x08
-    @write LCD.DISPLAYCONTROL | LCD.DISPLAYON, displayPorts.CMD
-
+    return @write(LCD.DISPLAYCONTROL|LCD.DISPLAYON, displayPorts.CMD)
 
   ###*
   set special character 0..7, data is an array(8) of bytes, and then return to home addr
@@ -170,10 +145,9 @@ class LCD
   createChar: (ch, data) ->
     assert Array.isArray(data)
     assert data.length is 8
-    @write(LCD.SETCGRAMADDR | ((ch & 7) << 3), displayPorts.CMD)
+    return @write(LCD.SETCGRAMADDR|((ch & 7) << 3), displayPorts.CMD)
       .then( => Promise.each(data, (d) => @write(d, displayPorts.CHR)) )
       .then( => @write(LCD.SETDDRAMADDR, displayPorts.CMD) )
-
 
 
 # commands
