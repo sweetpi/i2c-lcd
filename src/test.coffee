@@ -1,6 +1,5 @@
 LCD = require("./lcd")
 
-
 lcd = new LCD("/dev/i2c-1", 0x27)
 lcd.init()
 .then( ->
@@ -18,7 +17,7 @@ lcd.init()
 .then( -> lcd.print("Raspberry Pi #{String.fromCharCode(0)}") )
 .then( -> lcd.setCursor(0, 1) )
 .then( -> lcd.cursorUnder() )
-.delay(2000)
+.delay(4000)
 .then( ->
   d = new Date()
   s = d.toString()
@@ -27,6 +26,6 @@ lcd.init()
     .then( -> lcd.setCursor(0, 1) )
     .then( -> lcd.print(s.substring(16)) )
 )
-.delay(2000)
+.delay(4000)
 .then( -> lcd.off() )
 .done()
