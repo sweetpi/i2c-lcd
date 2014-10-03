@@ -1,11 +1,11 @@
 {
-  "name": "lcd-pcf8574",
-  "version": "1.0.3",
-  "description": "LCD i2c module using PCF8574P",
+  "name": "i2c-lcd",
+  "version": "1.0.0",
+  "description": "i2c LCD module",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/sweetpi/lcd-pcf8574.git"
+    "url": "git://github.com/sweetpi/i2c-lcd.git"
   },
   "dependencies": {
     "i2c": "*",
@@ -18,13 +18,16 @@
     "nodejs",
     "raspberry pi"
   ],
-  "author": {
-    "name": "Rhys Williams"
-  },
+  "author": "Oliver Schneider <oliverschneider89+sweetpi@gmail.com> (http://sweetpi.de)",
+  "contributors" : [
+    {
+      "name": "Rhys Williams"
+    }
+  ],
   "license": "BSD",
   "readmeFilename": "README.md",
   "bugs": {
-    "url": "https://github.com/sweetpi/lcd-pcf8574/issues"
+    "url": "https://github.com/sweetpi/i2c-lcd/issues"
   },
   "devDependencies": {
     "coffee-script": "^1.7.1",
