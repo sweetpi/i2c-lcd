@@ -1,11 +1,11 @@
-LCD = require("./lcd.coffee")
+LCD = require("./lcd")
 
 
 lcd = new LCD("/dev/i2c-1", 0x27)
 lcd.init()
 .then( ->
   return lcd.createChar(0, [
-    0x1b, 0x15, 0x0e, 0x1b, 
+    0x1b, 0x15, 0x0e, 0x1b,
     0x15, 0x1b, 0x15, 0x0e
   ])
 ).then( ->
@@ -19,11 +19,14 @@ lcd.init()
 .then( -> lcd.setCursor(0, 1) )
 .then( -> lcd.cursorUnder() )
 .delay(2000)
-.then( -> 
+.then( ->
   d = new Date()
   s = d.toString()
   return lcd.setCursor(0, 0)
     .then( -> lcd.print(s) )
     .then( -> lcd.setCursor(0, 1) )
     .then( -> lcd.print(s.substring(16)) )
-).done()
+)
+.delay(2000)
+.then( -> lcd.off() )
+.done()
