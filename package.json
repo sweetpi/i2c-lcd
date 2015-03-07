@@ -1,6 +1,6 @@
 {
   "name": "i2c-lcd",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "i2c LCD module",
   "main": "index.js",
   "repository": {
@@ -19,7 +19,7 @@
     "raspberry pi"
   ],
   "author": "Oliver Schneider <oliverschneider89+sweetpi@gmail.com> (http://sweetpi.de)",
-  "contributors" : [
+  "contributors": [
     {
       "name": "Rhys Williams"
     }
