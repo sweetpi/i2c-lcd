@@ -13,8 +13,9 @@ npm instal i2c-lcd
 Hardware
 --------
 
-Testd with: 2004 LCD Display Module HD44780 (20x4)
-Should also work with: 1602 LCD Display Module HD44780 (16x2)
+Testd with: 
+* 2004 LCD Display Module HD44780 (20x4)
+* 1602 LCD Display Module HD44780 (16x2)
 
 Usage Example
 ------------
