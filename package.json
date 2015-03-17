@@ -1,6 +1,6 @@
 {
   "name": "i2c-lcd",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "i2c LCD module",
   "main": "index.js",
   "repository": {
