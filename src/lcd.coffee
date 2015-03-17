@@ -46,8 +46,11 @@ class LCD
     a = (x & 0xf0) # Use upper 4 bit nibble
     return Promise.resolve()
       .then( => @i2c.writeByteAsync(a|displayPorts.backlight|c) )
+      .delay(1)
       .then( => @i2c.writeByteAsync(a|displayPorts.E|displayPorts.backlight|c) )
+      .delay(1)
       .then( => @i2c.writeByteAsync(a|displayPorts.backlight|c) )
+      .delay(1)
 
   write: (x, c) ->
     return Promise.resolve()
