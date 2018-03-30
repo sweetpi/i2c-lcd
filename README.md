@@ -7,7 +7,7 @@ Install
 -------
 
 ```
-npm instal i2c-lcd
+npm install i2c-lcd
 ```
 
 Hardware
